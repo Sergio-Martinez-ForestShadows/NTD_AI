@@ -6,6 +6,13 @@ Author: **Sergio Martinez – Senior Full Stack Developer**
 
 ## Overview
 
+Deployment Note (Cold Start)
+
+Important:
+This service is deployed on Render using Docker. When the application has been idle for some time, Render may spin it down.
+As a result, the first request can take 30–60 seconds due to container cold start, dependency loading, and OCR initialization.
+Subsequent requests are served normally with significantly lower latency.
+
 This project implements an end-to-end **Document Classification and Entity Extraction System** using **Django**, **OCR**, **vector databases**, and **LLMs**. The system is designed to process heterogeneous business documents (invoices, forms, assignments, etc.), identify their document type, and extract structured entities in a scalable and extensible way.
 
 The solution closely mirrors real-world document intelligence pipelines used in enterprise environments.
