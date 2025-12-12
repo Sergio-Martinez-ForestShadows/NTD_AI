@@ -15,4 +15,4 @@ COPY . .
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8000
 
-CMD ["bash", "-lc", "python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT}"]
+CMD ["bash", "-lc", "python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT} --timeout 180 --workers 1 --threads 2"]
