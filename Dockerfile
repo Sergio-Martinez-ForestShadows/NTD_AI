@@ -1,6 +1,5 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
-# System deps for tesseract + basic image libs
 RUN apt-get update && apt-get install -y --no-install-recommends \
     tesseract-ocr \
     libtesseract-dev \
@@ -16,5 +15,4 @@ COPY . .
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8000
 
-# Render sets $PORT; use it for gunicorn
 CMD ["bash", "-lc", "python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT}"]
