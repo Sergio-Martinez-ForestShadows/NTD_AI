@@ -18,7 +18,7 @@ This project implements an end-to-end **Document Classification and Entity Extra
 The solution closely mirrors real-world document intelligence pipelines used in enterprise environments.
 
 Endpoint Render Deployed with Docker 
-[https://ntd-ai.onrender.com/](https://ntd-ai.onrender.com/)api/
+[https://ntd-ai.onrender.com/api/documents/process/)
 
 Repository 
 [https://github.com/Sergio-Martinez-ForestShadows/NTD_AI](https://github.com/Sergio-Martinez-ForestShadows/NTD_AI)
