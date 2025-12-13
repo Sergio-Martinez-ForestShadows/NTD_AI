@@ -63,6 +63,25 @@ TESSERACT_CMD=C:\Program Files\Tesseract-OCR\tesseract.exe
 LLM_PROVIDER=none
 EMBEDDINGS_MODE=local
 
+$ python manage.py process_dataset dataset
+Processing document type: invoice
+  ✓ invoice_reference.png
+Processing document type: form
+  ✗ broken_image.jpg: Unsupported file type for OCR MVP: .jpg
+
+Summary: processed=1, failed=1
+Chroma documents count: 1
+
+## Configuration Matrix
+
+| Capability | Local (Windows) | Cloud (Render) |
+|---|---:|---:|
+| OCR (Tesseract) | ✅ Supported | ⚠️ Not deployed (resource limits) |
+| Embeddings (Sentence Transformers/ONNX) | ✅ Supported | ⚠️ Heavy memory footprint |
+| ChromaDB persistence | ✅ Local disk | ⚠️ Requires persistent disk |
+| LLM extraction | Optional | Optional |
+
+
 
 On macOS / Linux, TESSERACT_CMD can be omitted if Tesseract is in PATH.
 

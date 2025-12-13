@@ -1,12 +1,21 @@
 import os
+import json
 import chromadb
-from chromadb.utils import embedding_functions
 
 def get_collection():
-    chroma_dir = os.getenv("CHROMA_DIR", ".chroma")
-    name = os.getenv("CHROMA_COLLECTION", "documents")
+    client = chromadb.PersistentClient(path=os.getenv("CHROMA_DIR", ".chroma"))
+    return client.get_or_create_collection(name=os.getenv("CHROMA_COLLECTION", "documents"))
 
-    client = chromadb.PersistentClient(path=chroma_dir)  # :contentReference[oaicite:5]{index=5}
-    ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")  # :contentReference[oaicite:6]{index=6}
+def upsert_document(collection, doc_id: str, text: str, doc_type: str, confidence: float, entities: dict):
+    metadata = {
+        "document_type": str(doc_type),
+        "confidence": float(confidence),
+        # store as JSON string (metadata must be primitive types)
+        "entities_json": json.dumps(entities, ensure_ascii=False),
+    }
 
-    return client.get_or_create_collection(name=name, embedding_function=ef)
+    collection.upsert(
+        ids=[doc_id],
+        documents=[text],
+        metadatas=[metadata],
+    )

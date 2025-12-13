@@ -1,7 +1,15 @@
+
 from documents.services.cleaning import clean_text
 
-def test_clean_text_strips_and_normalizes():
-    t = "  hello \n\n\n world \x0c"
-    out = clean_text(t)
-    assert "hello" in out
-    assert "\n\n" in out
+def test_clean_text_normalizes_whitespace():
+    raw = "  Hello   World \n\n This   is   a   test  \t\t\n"
+    cleaned = clean_text(raw)
+
+
+    assert cleaned == cleaned.strip()
+
+
+    assert "  " not in cleaned
+
+    assert "Hello World" in cleaned
+    assert "This is a test" in cleaned
