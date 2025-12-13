@@ -36,7 +36,6 @@ class Command(BaseCommand):
                     self.stdout.write(f"  ✓ {filename}")
                 except Exception as e:
                     failed += 1
-                    # ✅ no aborta, solo log
                     self.stderr.write(f"  ✗ {filename}: {e}")
                     logger.exception("Failed processing %s", file_path)
 

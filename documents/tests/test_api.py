@@ -1,4 +1,4 @@
-# documents/tests/test_api.py
+
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIClient
 from unittest.mock import patch
@@ -19,7 +19,6 @@ def test_process_document_api_returns_expected_json_structure():
         "entities": {"invoice_number": "INV-001"},
     }
 
-    # IMPORTANT: patch path must match where it's imported in your api.py
     with patch("documents.api.process_document", return_value=fake_result):
         resp = client.post("/api/documents/process/", {"file": file}, format="multipart")
 

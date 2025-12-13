@@ -20,7 +20,7 @@ def classify_document(text: str, threshold: float = 0.35, n_results: int = 5) ->
     if not ids[0]:
         return {"document_type": "unknown", "confidence": 0.0, "matched_id": None}
 
-    # Pick the first match whose document_type is not 'unknown'
+
     for i in range(len(ids[0])):
         meta = (metas[0][i] if len(metas[0]) > i else {}) or {}
         doc_type = str(meta.get("document_type", "unknown")).lower().strip()
@@ -31,5 +31,4 @@ def classify_document(text: str, threshold: float = 0.35, n_results: int = 5) ->
         if doc_type != "unknown" and confidence >= threshold:
             return {"document_type": doc_type, "confidence": confidence, "matched_id": ids[0][i]}
 
-    # If everything is unknown or below threshold -> unknown
     return {"document_type": "unknown", "confidence": 0.0, "matched_id": ids[0][0]}

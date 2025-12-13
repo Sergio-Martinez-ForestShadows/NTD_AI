@@ -10,7 +10,6 @@ def upsert_document(collection, doc_id: str, text: str, doc_type: str, confidenc
     metadata = {
         "document_type": str(doc_type),
         "confidence": float(confidence),
-        # store as JSON string (metadata must be primitive types)
         "entities_json": json.dumps(entities, ensure_ascii=False),
     }
 
