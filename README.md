@@ -1,256 +1,161 @@
-# ML Document Classification and Entity Extraction System
+1️⃣ README – Nueva sección: Local Execution After Cloning
 
-Author: **Sergio Martinez – Senior Full Stack Developer**
+👉 Copia y pega esta sección en tu README, justo después de Project Structure o antes de Setup Instructions.
 
----
+Running the Project Locally (After Cloning)
 
-## Overview
+The full document intelligence pipeline is designed to run locally, where sufficient system resources are available to support OCR, embedding models, and vector databases.
 
-Deployment Note (Cold Start)
+1. Clone the Repository
+git clone https://github.com/Sergio-Martinez-ForestShadows/NTD_AI.git
+cd NTD_AI
 
-Important:
-This service is deployed on Render using Docker. When the application has been idle for some time, Render may spin it down.
-As a result, the first request can take 30–60 seconds due to container cold start, dependency loading, and OCR initialization.
-Subsequent requests are served normally with significantly lower latency.
-
-This project implements an end-to-end **Document Classification and Entity Extraction System** using **Django**, **OCR**, **vector databases**, and **LLMs**. The system is designed to process heterogeneous business documents (invoices, forms, assignments, etc.), identify their document type, and extract structured entities in a scalable and extensible way.
-
-The solution closely mirrors real-world document intelligence pipelines used in enterprise environments.
-
-Endpoint Render Deployed with Docker 
-[https://ntd-ai.onrender.com/api/documents/process/)
-
-Repository 
-[https://github.com/Sergio-Martinez-ForestShadows/NTD_AI](https://github.com/Sergio-Martinez-ForestShadows/NTD_AI)
-
----
-
-## High-Level Architecture
-
-```
-[File Upload / Dataset]
-        |
-        v
-     OCR (Tesseract)
-        |
-        v
- Text Cleaning & Normalization
-        |
-        v
- Vector Embedding (Sentence Transformers)
-        |
-        v
- ChromaDB (Persistent Vector Store)
-        |
-        +--> Document Type Classification (Similarity Search)
-        |
-        +--> LLM-based Entity Extraction
-        |
-        v
- Structured JSON Output
-```
-
-### Key Design Decisions
-
-* **OCR**: Tesseract was chosen for local, offline OCR to keep the solution self-contained.
-* **Vector DB**: ChromaDB is used for semantic similarity search and document type identification.
-* **Classification**: Document type is inferred via nearest-neighbor similarity over embedded document text.
-* **Entity Extraction**: LLM-based extraction is abstracted to allow OpenAI or local models.
-* **Persistence**: ChromaDB is configured with a persistent disk to survive restarts and redeploys.
-
----
-
-## Tech Stack
-
-* **Backend**: Python 3.11 / 3.12, Django, Django REST Framework
-* **OCR**: Tesseract (via pytesseract)
-* **Vector Database**: ChromaDB
-* **Embeddings**: Sentence Transformers (`all-MiniLM-L6-v2`)
-* **LLM (optional)**: OpenAI or pluggable provider
-* **Deployment**: Docker + Render
-* **Testing**: pytest
-
----
-
-## Project Structure
-
-```
-config/                 # Django project config
-├── settings.py
-├── urls.py
-├── wsgi.py
-
-documents/              # Core application
-├── api.py              # REST API views
-├── serializers.py
-├── urls.py
-├── services/
-│   ├── ocr.py          # OCR abstraction
-│   ├── cleaning.py     # Text normalization
-│   ├── chroma.py       # ChromaDB client
-│   ├── classify.py     # Document classification logic
-│   ├── llm.py          # LLM abstraction layer
-│   ├── extract.py      # Entity extraction
-│   └── pipeline.py     # End-to-end processing pipeline
-├── management/
-│   └── commands/
-│       └── process_dataset.py
-├── tests/
-│   ├── test_cleaning.py
-│   ├── test_classifier.py
-│   └── test_api.py
-
-Dockerfile
-requirements.txt
-.env.example
-README.md
-```
-
----
-
-## Setup Instructions (Local – Windows)
-
-### 1. Prerequisites
-
-* Python 3.11+
-* Tesseract OCR installed and available in PATH
-* Git
-
-### 2. Environment Setup
-
-```bash
+2. Create and Activate Virtual Environment
+Windows
 python -m venv .venv
 .\.venv\Scripts\activate
+
+macOS / Linux
+python3 -m venv .venv
+source .venv/bin/activate
+
+3. Install Python Dependencies
+pip install --upgrade pip
 pip install -r requirements.txt
-```
 
-Create a `.env` file:
 
-```env
+Note: This project includes ML and NLP libraries (Torch, Sentence Transformers). Installation may take several minutes.
+
+4. Install Tesseract OCR
+Windows
+
+Download from:
+https://github.com/UB-Mannheim/tesseract/wiki
+
+Install to the default location:
+
+C:\Program Files\Tesseract-OCR\
+
+
+Ensure tesseract.exe is available at:
+
+C:\Program Files\Tesseract-OCR\tesseract.exe
+
+macOS
+brew install tesseract
+
+Linux (Debian / Ubuntu)
+sudo apt-get update
+sudo apt-get install -y tesseract-ocr
+
+5. Environment Configuration
+
+Create a .env file at the project root:
+
+DEBUG=true
+DJANGO_SECRET_KEY=local-dev-secret
+ALLOWED_HOSTS=localhost,127.0.0.1
+
 CHROMA_DIR=.chroma
 CHROMA_COLLECTION=documents
-TESSERACT_CMD=C:\\Program Files\\Tesseract-OCR\\tesseract.exe
+
+TESSERACT_CMD=C:\Program Files\Tesseract-OCR\tesseract.exe
 LLM_PROVIDER=none
-OPENAI_API_KEY=
-```
+EMBEDDINGS_MODE=local
 
-### 3. Run Migrations and Server
 
-```bash
+On macOS / Linux, TESSERACT_CMD can be omitted if Tesseract is in PATH.
+
+6. Initialize Database and Run Server
 python manage.py migrate
 python manage.py runserver
-```
 
----
 
-## Batch Processing (Dataset Ingestion)
+The API will be available at:
 
-A Django management command is provided to process a dataset directory:
+http://localhost:8000/api/documents/process/
 
-```bash
-python manage.py process_dataset <path_to_dataset>
-```
-
-This command:
-
-* Iterates over supported document files
-* Extracts text via OCR
-* Classifies document type
-* Extracts entities
-* Upserts results into ChromaDB
-* Logs failures without stopping the pipeline
-
----
-
-## API Usage
-
-### Endpoint
-
-`POST /api/documents/process/`
-
-### Request
-
-* Content-Type: `multipart/form-data`
-* Field: `file`
-
-### Example (curl)
-
-```bash
+7. Test the API
 curl -X POST http://localhost:8000/api/documents/process/ \
-  -F "file=@invoice.png"
-```
+  -F "file=@sample_invoice.png"
 
-### Response Example
+8. Optional: Dataset Ingestion
 
-```json
-{
-  "document_id": "0437edc3-cc8b-46c0-a746-30e4a53ccc1a",
-  "document_type": "invoice",
-  "confidence": 0.87,
-  "entities": {
-    "invoice_number": "INV-001",
-    "vendor": "ACME Corp",
-    "total": "1250.00",
-    "currency": "USD"
-  }
-}
-```
+To ingest a dataset of documents into ChromaDB:
 
----
+python manage.py process_dataset <path_to_dataset>
 
-## Deployment on Render (Docker)
+Expected Behavior (Local)
 
-This project is designed to be deployed on **Render using Docker**, which allows system-level dependencies such as Tesseract.
+When running locally:
 
-### Key Environment Variables
+OCR executes using Tesseract
 
-```env
-CHROMA_DIR=/var/data/chroma
-LLM_PROVIDER=openai
-OPENAI_API_KEY=your_key_here
-```
+Embeddings are generated via Sentence Transformers
 
-A **Persistent Disk** must be attached and mounted to `/var/data` to preserve ChromaDB data across deploys.
+Documents are classified via ChromaDB similarity search
 
----
+Entity extraction runs through the configured provider
 
-## Adding New Document Types
+Results are returned as structured JSON
 
-1. Define entity schema in `extract.py`
-2. Update LLM prompt logic for the new type
-3. Ingest sample documents via `process_dataset`
-4. ChromaDB will automatically start classifying against the new type
+2️⃣ Final Delivery Message (Recruiter / Team)
 
-No schema or migration changes are required.
+👉 Este mensaje lo puedes enviar tal cual, solo ajusta el saludo si lo deseas.
 
----
+Subject: Technical Challenge Submission – ML Document Classification System
 
-## Testing
+Dear Karen Navarro and the NTD team,
 
-Run tests with:
+I hope you are doing well.
 
-```bash
-pytest
-```
+Please find below the delivery of the technical challenge. I would like to provide some context regarding execution and deployment, as this solution intentionally mirrors real-world production constraints.
 
-Tests cover:
+Solution Summary
 
-* Text cleaning
-* Document classification logic
-* API upload and response structure
+This challenge implements a full document intelligence pipeline including:
 
----
+OCR using Tesseract
 
-## Known Limitations
+Text normalization
 
-* MVP OCR supports images only (PDF support can be added via Poppler or cloud OCR)
-* Entity extraction requires LLM configuration
-* Classification accuracy improves as more documents are ingested
+Semantic classification using Sentence Transformers + ChromaDB
 
----
+Pluggable LLM-based entity extraction
 
-## Conclusion
+Django REST API exposing the processing endpoint
 
-This solution demonstrates a production-oriented approach to document intelligence, combining OCR, semantic search, and LLMs within a clean, extensible Django architecture.
+The architecture follows clean separation of concerns and is designed to scale in production environments.
 
-Designed and implemented by **Sergio Martinez**, Senior Full Stack Developer.
+Local vs Cloud Execution
+
+The complete ML pipeline is fully functional when executed locally, where sufficient CPU and memory resources are available to load embedding models and vector databases.
+
+A Dockerized version of the API was deployed to Render for demonstration purposes; however, due to the memory constraints of lightweight cloud containers, ML-heavy components (local embeddings and ChromaDB classification) are intentionally disabled in the cloud deployment.
+
+This reflects a realistic production decision: in enterprise systems, embedding generation and LLM workloads are typically offloaded to dedicated infrastructure or external providers rather than executed inside API containers.
+
+Detailed instructions for local execution after cloning the repository are included in the README.
+
+Repository
+
+Backend (Document Classification System):
+https://github.com/Sergio-Martinez-ForestShadows/NTD_AI
+
+Closing Notes
+
+This solution prioritizes:
+
+Architectural clarity
+
+Realistic deployment trade-offs
+
+Production-oriented design decisions
+
+I would be happy to walk through the architecture, explain design choices in more detail, or demonstrate the system locally if needed.
+
+Thank you very much for your time and consideration.
+
+Kind regards,
+Sergio Martinez
+Senior Full Stack Developer
